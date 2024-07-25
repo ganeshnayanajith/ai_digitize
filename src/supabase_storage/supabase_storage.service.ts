@@ -11,9 +11,12 @@ export class SupabaseStorageService {
     const uploadedFiles: string[] = [];
 
     for (const file of files) {
+
+      const fileNameParts = file.originalname.split('.');
+
       const { data, error } = await supabase.storage
         .from('uploaded_files')
-        .upload(`uploads/${Date.now()}_${file.originalname}`, file.buffer);
+        .upload(`uploads/${fileNameParts[0]}_${Date.now()}.${fileNameParts[1]}`, file.buffer);
 
       if (error) {
         throw new Error(`Failed to upload file: ${error.message}`);
