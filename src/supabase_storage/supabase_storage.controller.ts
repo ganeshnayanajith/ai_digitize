@@ -1,6 +1,8 @@
-import { Controller, Post, UploadedFiles, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Post, UploadedFiles, UseInterceptors, BadRequestException, Res, HttpStatus } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SupabaseStorageService } from './supabase_storage.service';
+import { ErrorResponse } from '../../lib/responses/error.response';
+import { SuccessResponse } from '../../lib/responses/success.response';
 
 @Controller('supabase-storage')
 export class SupabaseStorageController {
@@ -10,16 +12,25 @@ export class SupabaseStorageController {
 
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files', 10))
-  async uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    if (!files || files.length === 0) {
-      throw new BadRequestException('No files uploaded.');
-    }
-
+  async uploadFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Res() res: Response,
+  ) {
     try {
+      if (!files || files.length === 0) {
+        throw new BadRequestException('No files uploaded.');
+      }
+
       const uploadedFilePaths = await this.supabaseStorageService.uploadFiles(files);
-      return { uploadedFiles: uploadedFilePaths };
-    } catch (error) {
-      throw new BadRequestException(error.message);
+
+      SuccessResponse.sendSuccessResponse(
+        res,
+        HttpStatus.OK,
+        { uploadedFilePaths },
+        'File uploaded successfully.',
+      );
+    } catch (err) {
+      ErrorResponse.sendErrorResponse(res, err);
     }
   }
 
