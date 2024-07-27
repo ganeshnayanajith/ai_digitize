@@ -7,4 +7,7 @@ export class UploadedFileBatchDataEntity {
 
   @Column('simple-array')
   uploadedFileUrls: string[];
+
+  @Column({ type: 'jsonb', nullable: true })
+  aiResult: any;
 }

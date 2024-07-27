@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../../lib/services/supabase.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UploadedFileBatchDataEntity } from './uploaded_file_batch_data.entity';
@@ -56,7 +56,17 @@ export class SupabaseStorageService {
     return { batchId, uploadedFileUrls };
   }
 
-  async analyzeFiles(files: Express.Multer.File[]) {
-    return await this.fileAnalyzerAIService.analyzeFiles(files);
+  async analyzeFiles(files: Express.Multer.File[], batchId) {
+    const aiResult = await this.fileAnalyzerAIService.analyzeFiles(files);
+
+    const batch = await this.uploadedFileBatchDataRepository.findOneBy({ batchId });
+
+    if (!batch) {
+      throw new NotFoundException(`Batch with id ${batchId} not found`);
+    }
+
+    Object.assign(batch, { aiResult });
+
+    return await this.uploadedFileBatchDataRepository.save(batch);
   }
 }
