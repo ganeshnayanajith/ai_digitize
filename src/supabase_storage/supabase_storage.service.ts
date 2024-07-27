@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UploadedFileBatchDataEntity } from './uploaded_file_batch_data.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class SupabaseStorageService {
@@ -15,9 +16,9 @@ export class SupabaseStorageService {
   ) {
   }
 
-  async uploadFiles(files: Express.Multer.File[]): Promise<string[]> {
+  async uploadFiles(files: Express.Multer.File[]) {
     const supabase = this.supabaseService.getSupabaseClient();
-    const uploadedFiles: string[] = [];
+    const uploadedFileUrls: string[] = [];
 
     for (const file of files) {
 
@@ -41,12 +42,15 @@ export class SupabaseStorageService {
         throw new Error(`Failed to get public file url`);
       }
 
-      uploadedFiles.push(publicUrl);
+      uploadedFileUrls.push(publicUrl);
     }
 
-    const fileEntity = this.uploadedFileBatchDataRepository.create({ fileUrls: uploadedFiles });
-    await this.uploadedFileBatchDataRepository.save(fileEntity);
+    const batchId = uuidv4();
 
-    return uploadedFiles;
+    const fileEntity = this.uploadedFileBatchDataRepository.create({ batchId, uploadedFileUrls });
+
+    const result = await this.uploadedFileBatchDataRepository.save(fileEntity);
+
+    return { batchId, uploadedFileUrls };
   }
 }

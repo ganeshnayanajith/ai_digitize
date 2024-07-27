@@ -1,5 +1,4 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
 export class UploadedFileBatchDataEntity {
@@ -7,9 +6,5 @@ export class UploadedFileBatchDataEntity {
   batchId: string;
 
   @Column('simple-array')
-  fileUrls: string[];
-
-  constructor() {
-    this.batchId = uuidv4();
-  }
+  uploadedFileUrls: string[];
 }

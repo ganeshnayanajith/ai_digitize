@@ -21,12 +21,12 @@ export class SupabaseStorageController {
         throw new BadRequestException('No files uploaded.');
       }
 
-      const uploadedFilePaths = await this.supabaseStorageService.uploadFiles(files);
+      const result = await this.supabaseStorageService.uploadFiles(files);
 
       SuccessResponse.sendSuccessResponse(
         res,
         HttpStatus.OK,
-        { uploadedFilePaths },
+        result,
         'File uploaded successfully.',
       );
     } catch (err) {
