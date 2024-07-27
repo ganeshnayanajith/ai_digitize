@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UploadedFileBatchDataEntity } from './uploaded_file_batch_data.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import { FileAnalyzerAIService } from '../../lib/services/file_analyzer_ai.service';
 
 @Injectable()
@@ -47,19 +47,16 @@ export class SupabaseStorageService {
       uploadedFileUrls.push(publicUrl);
     }
 
-    const batchId = uuidv4();
+    const batchId = uuidV4();
 
     const fileEntity = this.uploadedFileBatchDataRepository.create({ batchId, uploadedFileUrls });
 
-    const result = await this.uploadedFileBatchDataRepository.save(fileEntity);
+    await this.uploadedFileBatchDataRepository.save(fileEntity);
 
     return { batchId, uploadedFileUrls };
   }
 
   async analyzeFiles(files: Express.Multer.File[]) {
-
-    const result = await this.fileAnalyzerAIService.analyzeFiles(files);
-
-    return result;
+    return await this.fileAnalyzerAIService.analyzeFiles(files);
   }
 }
