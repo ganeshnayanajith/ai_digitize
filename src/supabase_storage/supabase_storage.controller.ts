@@ -34,4 +34,28 @@ export class SupabaseStorageController {
     }
   }
 
+  @Post('analyze')
+  @UseInterceptors(FilesInterceptor('files', 10))
+  async analyzeFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Res() res: Response,
+  ) {
+    try {
+      if (!files || files.length === 0) {
+        throw new BadRequestException('No files uploaded.');
+      }
+
+      const result = await this.supabaseStorageService.analyzeFiles(files);
+
+      SuccessResponse.sendSuccessResponse(
+        res,
+        HttpStatus.OK,
+        result,
+        'File analyzed successfully.',
+      );
+    } catch (err) {
+      ErrorResponse.sendErrorResponse(res, err);
+    }
+  }
+
 }

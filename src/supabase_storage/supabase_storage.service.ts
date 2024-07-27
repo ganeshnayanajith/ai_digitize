@@ -5,11 +5,13 @@ import { UploadedFileBatchDataEntity } from './uploaded_file_batch_data.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { FileAnalyzerAIService } from '../../lib/services/file_analyzer_ai.service';
 
 @Injectable()
 export class SupabaseStorageService {
   constructor(
     private readonly supabaseService: SupabaseService,
+    private readonly fileAnalyzerAIService: FileAnalyzerAIService,
     private readonly configService: ConfigService,
     @InjectRepository(UploadedFileBatchDataEntity)
     private uploadedFileBatchDataRepository: Repository<UploadedFileBatchDataEntity>,
@@ -52,5 +54,12 @@ export class SupabaseStorageService {
     const result = await this.uploadedFileBatchDataRepository.save(fileEntity);
 
     return { batchId, uploadedFileUrls };
+  }
+
+  async analyzeFiles(files: Express.Multer.File[]) {
+
+    const result = await this.fileAnalyzerAIService.analyzeFiles(files);
+
+    return result;
   }
 }
