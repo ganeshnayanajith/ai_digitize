@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../lib/services/supabase.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UploadedFileBatchDataEntity } from './uploaded_file_batch_data.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SupabaseStorageService {
-  constructor(private readonly supabaseService: SupabaseService) {
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    @InjectRepository(UploadedFileBatchDataEntity)
+    private uploadedFileBatchDataRepository: Repository<UploadedFileBatchDataEntity>,
+  ) {
   }
 
   async uploadFiles(files: Express.Multer.File[]): Promise<string[]> {
@@ -24,6 +31,9 @@ export class SupabaseStorageService {
 
       uploadedFiles.push(data.path);
     }
+
+    const fileEntity = this.uploadedFileBatchDataRepository.create({ filePaths: uploadedFiles });
+    await this.uploadedFileBatchDataRepository.save(fileEntity);
 
     return uploadedFiles;
   }
