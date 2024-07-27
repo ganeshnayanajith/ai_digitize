@@ -7,7 +7,7 @@ export class UploadedFileBatchDataEntity {
   batchId: string;
 
   @Column('simple-array')
-  filePaths: string[];
+  fileUrls: string[];
 
   constructor() {
     this.batchId = uuidv4();
