@@ -7,6 +7,7 @@ import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ConnectionOptions } from 'typeorm';
+import { FileAnalyzeModule } from './file_analyze/file_analyze.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ConnectionOptions } from 'typeorm';
       } as ConnectionOptions),
       inject: [ConfigService],
     }),
+    FileAnalyzeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

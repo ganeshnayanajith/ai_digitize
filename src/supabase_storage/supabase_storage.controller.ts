@@ -6,8 +6,6 @@ import {
   BadRequestException,
   Res,
   HttpStatus,
-  Param,
-  Get,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SupabaseStorageService } from './supabase_storage.service';
@@ -38,26 +36,6 @@ export class SupabaseStorageController {
         HttpStatus.OK,
         result,
         'Files uploaded successfully.',
-      );
-    } catch (err) {
-      ErrorResponse.sendErrorResponse(res, err);
-    }
-  }
-
-  @Get('analyze/:batchId')
-  async analyzeFiles(
-    @Param('batchId') batchId: string,
-    @Res() res: Response,
-  ) {
-    try {
-
-      const result = await this.supabaseStorageService.analyzeFiles(batchId);
-
-      SuccessResponse.sendSuccessResponse(
-        res,
-        HttpStatus.OK,
-        result,
-        'File analyzed successfully.',
       );
     } catch (err) {
       ErrorResponse.sendErrorResponse(res, err);
