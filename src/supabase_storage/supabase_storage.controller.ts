@@ -7,6 +7,7 @@ import {
   Res,
   HttpStatus,
   Param,
+  Get,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SupabaseStorageService } from './supabase_storage.service';
@@ -36,26 +37,21 @@ export class SupabaseStorageController {
         res,
         HttpStatus.OK,
         result,
-        'File uploaded successfully.',
+        'Files uploaded successfully.',
       );
     } catch (err) {
       ErrorResponse.sendErrorResponse(res, err);
     }
   }
 
-  @Post('analyze/:batchId')
-  @UseInterceptors(FilesInterceptor('files', 10))
+  @Get('analyze/:batchId')
   async analyzeFiles(
     @Param('batchId') batchId: string,
-    @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
   ) {
     try {
-      if (!files || files.length === 0) {
-        throw new BadRequestException('No files uploaded.');
-      }
 
-      const result = await this.supabaseStorageService.analyzeFiles(files, batchId);
+      const result = await this.supabaseStorageService.analyzeFiles(batchId);
 
       SuccessResponse.sendSuccessResponse(
         res,

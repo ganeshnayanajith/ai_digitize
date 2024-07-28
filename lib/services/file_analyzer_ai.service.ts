@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as FormData from 'form-data';
 import { ConfigService } from '@nestjs/config';
+import { Buffer } from 'buffer';
 
 @Injectable()
 export class FileAnalyzerAIService {
@@ -11,13 +12,14 @@ export class FileAnalyzerAIService {
   ) {
   }
 
-  async analyzeFiles(files: Express.Multer.File[]): Promise<any> {
+  async analyzeFile(fileUrl: string): Promise<any> {
 
     const data = new FormData();
 
-    files.forEach((file) => {
-      data.append('files', file.buffer, file.originalname);
-    });
+    const fileBuffer = await this.fetchFileFromURL(fileUrl);
+    const fileName = fileUrl.split('/').pop();
+
+    data.append('files', fileBuffer, fileName);
 
     const config = {
       method: 'post',
@@ -31,6 +33,16 @@ export class FileAnalyzerAIService {
       return response.data;
     } catch (error) {
       console.error(error);
+      throw error;
+    }
+  }
+
+  async fetchFileFromURL(fileUrl: string) {
+    try {
+      const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+      return Buffer.from(response.data);
+    } catch (error) {
+      console.error(`Error fetching file from URL: ${fileUrl}`, error);
       throw error;
     }
   }

@@ -20,53 +20,68 @@ export class SupabaseStorageService {
 
   async uploadFiles(files: Express.Multer.File[]) {
     const supabase = this.supabaseService.getSupabaseClient();
-    const uploadedFileUrls: string[] = [];
+
+    const batchId = uuidV4();
+
+    const results = [];
 
     for (const file of files) {
 
       const fileNameParts = file.originalname.split('.');
 
+      const fileName = `${fileNameParts[0]}_${Date.now()}.${fileNameParts[1]}`;
+
       const { data, error } = await supabase.storage
         .from(this.configService.get('STORAGE_BUCKET_NAME'))
-        .upload(`uploads/${fileNameParts[0]}_${Date.now()}.${fileNameParts[1]}`, file.buffer);
+        .upload(`uploads/${fileName}`, file.buffer);
 
       if (error) {
         throw new Error(`Failed to upload file: ${error.message}`);
       }
 
-      const { data: { publicUrl } } = supabase
+      const { data: { publicUrl: fileUrl } } = supabase
         .storage
         .from(this.configService.get('STORAGE_BUCKET_NAME'))
         .getPublicUrl(data.path);
 
 
-      if (!publicUrl) {
+      if (!fileUrl) {
         throw new Error(`Failed to get public file url`);
       }
 
-      uploadedFileUrls.push(publicUrl);
+      const fileEntity = this.uploadedFileBatchDataRepository.create({ batchId, fileUrl, fileName });
+
+      const result = await this.uploadedFileBatchDataRepository.save(fileEntity);
+
+      results.push(result);
     }
 
-    const batchId = uuidV4();
-
-    const fileEntity = this.uploadedFileBatchDataRepository.create({ batchId, uploadedFileUrls });
-
-    await this.uploadedFileBatchDataRepository.save(fileEntity);
-
-    return { batchId, uploadedFileUrls };
+    return results;
   }
 
-  async analyzeFiles(files: Express.Multer.File[], batchId) {
-    const aiResult = await this.fileAnalyzerAIService.analyzeFiles(files);
+  async analyzeFiles(batchId) {
 
-    const batch = await this.uploadedFileBatchDataRepository.findOneBy({ batchId });
+    const batches = await this.uploadedFileBatchDataRepository.findBy({ batchId });
 
-    if (!batch) {
-      throw new NotFoundException(`Batch with id ${batchId} not found`);
+    if (batches.length === 0) {
+      throw new NotFoundException(`Batches with id ${batchId} not found`);
     }
 
-    Object.assign(batch, { aiResult });
+    const results = [];
 
-    return await this.uploadedFileBatchDataRepository.save(batch);
+    for (const batch of batches) {
+
+      const aiResult = await this.fileAnalyzerAIService.analyzeFile(batch.fileUrl);
+
+      Object.assign(batch, { aiResult });
+
+      const result = await this.uploadedFileBatchDataRepository.save(batch);
+
+      results.push(result);
+
+    }
+
+    return results;
+
   }
 }
