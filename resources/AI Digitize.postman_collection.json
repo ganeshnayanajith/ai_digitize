@@ -1,0 +1,123 @@
+{
+	"info": {
+		"_postman_id": "384b520e-f972-48ae-b79f-b27c548d0cc7",
+		"name": "AI Digitize",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24347292"
+	},
+	"item": [
+		{
+			"name": "Upload",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/Users/ganesh/Downloads/download.jpeg"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/Users/ganesh/Downloads/download.jpeg"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:4000/supabase-storage/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"supabase-storage",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AI request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/Users/ganesh/Downloads/download.jpeg"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://api.paperize.ai/process",
+					"protocol": "https",
+					"host": [
+						"api",
+						"paperize",
+						"ai"
+					],
+					"path": [
+						"process"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Analyze",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"batchId\":\"f789a7ae-169d-48d0-a96e-b878112045f3\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/file-analyze",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"file-analyze"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Analyzed Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/file-analyze/f789a7ae-169d-48d0-a96e-b878112045f3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"file-analyze",
+						"f789a7ae-169d-48d0-a96e-b878112045f3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

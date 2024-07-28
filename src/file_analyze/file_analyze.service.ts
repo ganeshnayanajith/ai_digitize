@@ -40,4 +40,16 @@ export class FileAnalyzeService {
 
   }
 
+  async getAnalyzedData(batchId) {
+
+    const batches = await this.uploadedFileBatchDataRepository.findBy({ batchId });
+
+    if (batches.length === 0) {
+      throw new NotFoundException(`Batches with id ${batchId} not found`);
+    }
+
+    return batches;
+
+  }
+
 }
