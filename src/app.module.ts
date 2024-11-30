@@ -25,6 +25,8 @@ import { FileAnalyzeModule } from './file_analyze/file_analyze.module';
         DATABASE_USERNAME: Joi.string().required(),
         DATABASE_PASSWORD: Joi.string().required(),
         DATABASE_NAME: Joi.string().required(),
+        AI_SERVICE_URL: Joi.string().required(),
+        STORAGE_BUCKET_NAME: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({
